@@ -1,0 +1,43 @@
+###############################################################################
+#                          Compose file                         #
+###############################################################################
+version: "3.1"
+services:
+
+    mysql:
+      image: mysql:5.7
+      container_name: docker-mysql
+      working_dir: /application
+      volumes:
+        - .:/application
+      environment:
+        - MYSQL_ROOT_PASSWORD=root
+        - MYSQL_DATABASE=dummydatabase
+        - MYSQL_USER=dummyuser
+        - MYSQL_PASSWORD=dummy
+      ports:
+        - "8008:3306"
+
+    webserver:
+      image: nginx:alpine
+      container_name: docker-webserver
+      working_dir: /application
+      volumes:
+          - .:/applicationc
+          - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      ports:
+       - "8006:80"
+      links:
+        - mysql
+        - php-fpm
+
+    php-fpm:
+      build: php-fpm
+      container_name: docker-php-fpm
+      working_dir: /application
+      volumes:
+        - .:/application
+        - ./php-fpm/php-ini-overrides.ini:/etc/php/7.3/fpm/conf.d/99-overrides.ini
+      links:
+        - mysql
+
